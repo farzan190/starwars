@@ -74,30 +74,34 @@ export default function StarshipsPage() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (isLoading) return <p>Loading starships...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (isLoading) return <p className="text-yellow-400 text-center text-xl">Loading starships...</p>;
+  if (error) return <p className="text-red-500 text-center text-xl">Error: {error.message}</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Starships</h1>
+    <div className="p-6 min-h-screen bg-black text-yellow-400 font-mono">
+      <h1 className="text-3xl font-bold mb-6 text-center uppercase">Starships</h1>
       
-      <div className="mb-4 flex gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-center">
         <input 
           type="text" 
           placeholder="Search by name..." 
           value={searchQuery} 
           onChange={e => setSearchQuery(e.target.value)} 
-          className="p-2 border rounded"
+          className="p-3 border border-yellow-400 bg-gray-900 text-yellow-300 rounded focus:ring-2 focus:ring-yellow-400"
         />
         
-        <select value={hyperdriveFilter} onChange={e => setHyperdriveFilter(e.target.value)} className="p-2 border rounded">
+        <select value={hyperdriveFilter} onChange={e => setHyperdriveFilter(e.target.value)} 
+          className="p-3 border border-yellow-400 bg-gray-900 text-yellow-300 rounded focus:ring-2 focus:ring-yellow-400"
+        >
           <option value="">All Hyperdrive Ratings</option>
           <option value="<1.0">&lt;1.0</option>
           <option value="1.0-2.0">1.0 - 2.0</option>
           <option value=">2.0">&gt;2.0</option>
         </select>
         
-        <select value={crewFilter} onChange={e => setCrewFilter(e.target.value)} className="p-2 border rounded">
+        <select value={crewFilter} onChange={e => setCrewFilter(e.target.value)} 
+          className="p-3 border border-yellow-400 bg-gray-900 text-yellow-300 rounded focus:ring-2 focus:ring-yellow-400"
+        >
           <option value="">All Crew Sizes</option>
           <option value="1-5">1-5</option>
           <option value="6-50">6-50</option>
@@ -105,15 +109,15 @@ export default function StarshipsPage() {
         </select>
       </div>
       
-      <div className="rounded-md border">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="rounded-lg border border-yellow-400 shadow-lg shadow-yellow-500/50 overflow-hidden">
+        <table className="min-w-full divide-y divide-yellow-400">
+          <thead className="bg-gray-900">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
                   <th 
                     key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-bold text-yellow-300 uppercase tracking-wider"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -124,11 +128,11 @@ export default function StarshipsPage() {
               </tr>
             ))}
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-yellow-400">
             {table.getRowModel().rows.map(row => (
-              <tr key={row.id}>
+              <tr key={row.id} className="even:bg-gray-900/50 hover:bg-yellow-500/10">
                 {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm">
                     {flexRender(
                       cell.column.columnDef.cell,
                       cell.getContext()

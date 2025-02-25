@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Star Wars Theme */
+body {
+  background: radial-gradient(circle at bottom, #1a1a2e, #0f0f1e);
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* Ensure consistent height */
+.container {
+  min-height: 80vh; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Prevent table from shrinking when filtering */
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+tbody {
+  min-height: 400px; /* Adjust to keep space */
+  display: block;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+/* Ensure table header stays aligned */
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background: #111827; /* Dark theme fix */
+  z-index: 10;
+}
+/* Fix the sorting/filtering bar at the top */
+.sorting-bar {
+  position: sticky;
+  top: 0;
+  background: #111827; /* Adjust based on theme */
+  z-index: 50; /* Ensures it stays above content */
+  padding: 10px;
+  width: 100%;
+}
+/* Ensure table doesn't shrink */
+.table-container {
+  min-height: 500px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+}
+thead {
+  position: sticky;
+  top: 0;
+  background: #111827;
+  z-index: 10;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+tbody {
+  display: block;
+  max-height: 400px; /* Adjust if necessary */
+  overflow-y: auto;
+}
+
+
+
+/* Starry effect */
+@keyframes stars {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 1000px 1000px;
+  }
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/stardust.png');
+  opacity: 0.3;
+  animation: stars 200s linear infinite;
+  z-index: -1;
+}
+
+/* Styling for inputs and dropdowns */
+input, select {
+  @apply bg-gray-800 text-white border border-gray-600 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400;
+}
+
+/* Table styles */
+table {
+  @apply w-full border-collapse text-left rounded-md overflow-hidden;
+}
+
+thead {
+  @apply bg-gray-900 text-yellow-300;
+}
+
+th, td {
+  @apply px-6 py-3 border-b border-gray-700;
+}
+
+tbody tr:hover {
+  @apply bg-gray-800 transition duration-200;
+}
+
+/* Headings */
+h1 {
+  @apply text-3xl font-bold text-yellow-400 mb-4;
+}

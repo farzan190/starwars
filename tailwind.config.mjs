@@ -1,15 +1,22 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        spaceBg: "#0f0f1e", // Dark space background
+        spaceAccent: "#1a1a2e", // Slightly lighter accent
+        textPrimary: "#ffcc00", // Star Wars yellow
+      },
+      animation: {
+        stars: "stars 200s linear infinite",
+      },
+      backgroundImage: {
+        stars: "url('https://www.transparenttextures.com/patterns/stardust.png')",
+      },
+      keyframes: {
+        stars: {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "1000px 1000px" },
+        },
       },
     },
   },
