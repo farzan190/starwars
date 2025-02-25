@@ -20,6 +20,7 @@ export default function StarshipsPage() {
     staleTime: 60000, // Prevents excessive re-fetching
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [hyperdriveFilter, setHyperdriveFilter] = useState("");
   const [crewFilter, setCrewFilter] = useState("");
 
@@ -29,6 +30,7 @@ export default function StarshipsPage() {
     return data.filter(starship => {
       const hyperdrive = parseFloat(starship.hyperdrive_rating) || 0;
       const crew = parseInt(starship.crew.replace(/,/g, ""), 10) || 0;
+      const nameMatches = starship.name.toLowerCase().includes(searchQuery.toLowerCase());
     
       const hyperdriveMatches = 
         !hyperdriveFilter || 
@@ -42,9 +44,9 @@ export default function StarshipsPage() {
         (crewFilter === "6-50" && crew >= 6 && crew <= 50) ||
         (crewFilter === "50+" && crew > 50);
 
-      return hyperdriveMatches && crewMatches;
+      return nameMatches && hyperdriveMatches && crewMatches;
     });
-  }, [data, hyperdriveFilter, crewFilter]);
+  }, [data, searchQuery, hyperdriveFilter, crewFilter]);
 
   const columnHelper = createColumnHelper();
 
@@ -80,6 +82,14 @@ export default function StarshipsPage() {
       <h1 className="text-2xl font-bold mb-4">Starships</h1>
       
       <div className="mb-4 flex gap-4">
+        <input 
+          type="text" 
+          placeholder="Search by name..." 
+          value={searchQuery} 
+          onChange={e => setSearchQuery(e.target.value)} 
+          className="p-2 border rounded"
+        />
+        
         <select value={hyperdriveFilter} onChange={e => setHyperdriveFilter(e.target.value)} className="p-2 border rounded">
           <option value="">All Hyperdrive Ratings</option>
           <option value="<1.0">&lt;1.0</option>
