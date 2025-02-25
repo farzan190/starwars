@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { atom, useAtom } from "jotai";
 import { useRouter } from "next/navigation";
 import { apiClient } from "./lib/apiClient";
 import { 
@@ -9,7 +10,9 @@ import {
   flexRender, 
   getCoreRowModel, 
   useReactTable 
-} from '@tanstack/react-table';
+} from "@tanstack/react-table";
+
+const selectedStarshipsAtom = atom([]);
 
 export default function StarshipsPage() {
   const { data, isLoading, error } = useQuery({
@@ -21,11 +24,11 @@ export default function StarshipsPage() {
     staleTime: 60000, 
   });
 
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [hyperdriveFilter, setHyperdriveFilter] = useState("");
   const [crewFilter, setCrewFilter] = useState("");
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedStarships, setSelectedStarships] = useAtom(selectedStarshipsAtom);
+  const router = useRouter();
 
   const filteredData = useMemo(() => {
     if (!data) return [];
@@ -33,13 +36,11 @@ export default function StarshipsPage() {
       const hyperdrive = parseFloat(starship.hyperdrive_rating) || 0;
       const crew = parseInt(starship.crew.replace(/,/g, ""), 10) || 0;
       const nameMatches = starship.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const hyperdriveMatches = 
-        !hyperdriveFilter || 
+      const hyperdriveMatches = !hyperdriveFilter || 
         (hyperdriveFilter === "<1.0" && hyperdrive < 1.0) ||
         (hyperdriveFilter === "1.0-2.0" && hyperdrive >= 1.0 && hyperdrive <= 2.0) ||
         (hyperdriveFilter === ">2.0" && hyperdrive > 2.0);
-      const crewMatches = 
-        !crewFilter || 
+      const crewMatches = !crewFilter || 
         (crewFilter === "1-5" && crew >= 1 && crew <= 5) ||
         (crewFilter === "6-50" && crew >= 6 && crew <= 50) ||
         (crewFilter === "50+" && crew > 50);
@@ -47,24 +48,21 @@ export default function StarshipsPage() {
     });
   }, [data, searchQuery, hyperdriveFilter, crewFilter]);
 
-  const toggleSelection = (row) => {
-    setSelectedRows((prev) => {
-      if (prev.some((r) => r.name === row.name)) {
-        return prev.filter((r) => r.name !== row.name);
-      }
-      if (prev.length < 3) {
-        return [...prev, row];
+  const toggleSelection = (starship) => {
+    setSelectedStarships(prev => {
+      const isSelected = prev.some(s => s.name === starship.name);
+      if (isSelected) {
+        return prev.filter(s => s.name !== starship.name);
+      } else if (prev.length < 3) {
+        return [...prev, starship];
       }
       return prev;
     });
   };
 
   const handleCompare = () => {
-    if (selectedRows.length >= 2) {
-      router.push({
-        pathname: "/compare",
-        query: { data: JSON.stringify(selectedRows) },
-      });
+    if (selectedStarships.length >= 2) {
+      router.push("/comparison");
     }
   };
 
@@ -75,18 +73,6 @@ export default function StarshipsPage() {
     columnHelper.accessor("manufacturer", { header: "Manufacturer" }),
     columnHelper.accessor("crew", { header: "Crew Size" }),
     columnHelper.accessor("hyperdrive_rating", { header: "Hyperdrive Rating" }),
-    {
-      id: "select",
-      header: "Select",
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          checked={selectedRows.some((r) => r.name === row.original.name)}
-          onChange={() => toggleSelection(row.original)}
-          className="cursor-pointer"
-        />
-      ),
-    },
   ];
 
   const table = useReactTable({
@@ -101,8 +87,7 @@ export default function StarshipsPage() {
   return (
     <div className="p-6 min-h-screen bg-black text-yellow-400 font-mono">
       <h1 className="text-3xl font-bold mb-6 text-center uppercase">Starships</h1>
-      
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="mb-6 flex flex-wrap gap-4 justify-center">
         <input 
           type="text" 
           placeholder="Search by name..." 
@@ -118,43 +103,46 @@ export default function StarshipsPage() {
           <option value="1.0-2.0">1.0 - 2.0</option>
           <option value=">2.0">&gt;2.0</option>
         </select>
-        <button
-          disabled={selectedRows.length < 2}
-          onClick={handleCompare}
-          className={`p-3 border border-yellow-400 bg-gray-900 text-yellow-300 rounded focus:ring-2 focus:ring-yellow-400 ${
-            selectedRows.length < 2 ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-600"
-          }`}
+        <select value={crewFilter} onChange={e => setCrewFilter(e.target.value)} 
+          className="p-3 border border-yellow-400 bg-gray-900 text-yellow-300 rounded focus:ring-2 focus:ring-yellow-400"
         >
-          Compare ({selectedRows.length})
+          <option value="">All Crew Sizes</option>
+          <option value="1-5">1-5</option>
+          <option value="6-50">6-50</option>
+          <option value="50+">50+</option>
+        </select>
+        <button 
+          onClick={handleCompare} 
+          disabled={selectedStarships.length < 2} 
+          className={`p-3 rounded text-black font-bold ${selectedStarships.length < 2 ? "bg-gray-600" : "bg-yellow-400"}`}
+        >
+          Compare
         </button>
       </div>
-      
-      <div className="rounded-lg border border-yellow-400 shadow-lg shadow-yellow-500/50 overflow-hidden">
-        <table className="min-w-full divide-y divide-yellow-400">
-          <thead className="bg-gray-900">
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <th key={header.id} className="px-6 py-3 text-left text-xs font-bold text-yellow-300 uppercase tracking-wider">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-yellow-400">
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id} className="even:bg-gray-900/50 hover:bg-yellow-500/10">
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <table className="min-w-full border border-yellow-400">
+        <thead>
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map(header => (
+                <th key={header.id} className="px-4 py-2 border-b border-yellow-400">{flexRender(header.column.columnDef.header, header.getContext())}</th>
+              ))}
+              <th>Select</th>
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map(row => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map(cell => (
+                <td key={cell.id} className="px-4 py-2 border-b border-yellow-400">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              ))}
+              <td>
+                <input type="checkbox" onChange={() => toggleSelection(row.original)} checked={selectedStarships.some(s => s.name === row.original.name)} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
