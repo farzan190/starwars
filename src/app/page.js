@@ -62,7 +62,7 @@ export default function StarshipsPage() {
 
   const handleCompare = () => {
     if (selectedStarships.length >= 2) {
-      router.push("/comparison");
+      router.push("/compare");
     }
   };
 
@@ -86,6 +86,7 @@ export default function StarshipsPage() {
 
   return (
     <div className="p-6 min-h-screen bg-black text-yellow-400 font-mono">
+      {console.log("these are selected starships on main page",selectedStarships)}
       <h1 className="text-3xl font-bold mb-6 text-center uppercase">Starships</h1>
       <div className="mb-6 flex flex-wrap gap-4 justify-center">
         <input 

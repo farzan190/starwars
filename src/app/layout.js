@@ -1,15 +1,20 @@
-"use client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+"use client"; // Add this directive at the top
+import { createStore, Provider } from "jotai";
 import { useState } from "react";
-import "./styles/globals.css"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./styles/globals.css";
+
+const myStore = createStore();
 
 export default function RootLayout({ children }) {
   const [queryClient] = useState(() => new QueryClient());
-
+  
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <Provider store={myStore}>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </Provider>
       </body>
     </html>
   );
